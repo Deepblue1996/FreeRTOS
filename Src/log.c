@@ -9,7 +9,7 @@
 #include "stdarg.h"
 #include "usart.h"
 
-void Str_Printf(char *str, ...) {
+void Log(char *str, ...) {
     char pStr[sizeof(str) * 10];
     va_list args;
     int n;

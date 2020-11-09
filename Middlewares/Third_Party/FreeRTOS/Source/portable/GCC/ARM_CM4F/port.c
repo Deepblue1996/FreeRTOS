@@ -280,10 +280,10 @@ static void prvPortStartFirstTask( void )
 				);
 }
 /*-----------------------------------------------------------*/
-//
-///*
-// * See header file for description.
-// */
+
+/*
+ * See header file for description.
+ */
 //BaseType_t xPortStartScheduler( void )
 //{
 //	/* configMAX_SYSCALL_INTERRUPT_PRIORITY must not be set to 0.
@@ -568,7 +568,6 @@ void vPortExitCritical( void )
 //	::"i"(configMAX_SYSCALL_INTERRUPT_PRIORITY)
 //	);
 //}
-
 void xPortPendSVHandler( void )
 {
     /* This is a naked function. */

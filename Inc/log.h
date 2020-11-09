@@ -11,7 +11,7 @@ extern "C" {
 
 #include "stm32f4xx_hal.h"
 
-void Str_Printf(char *str, ...);
+void Log(char *str, ...);
 char *send(UART_HandleTypeDef *huart, char *msg);
 char *response(UART_HandleTypeDef *huart);
 char *sendResponse(char *msg, char *isOk);

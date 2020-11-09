@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -65,13 +66,34 @@ void MX_FREERTOS_Init(void);
 
 uint32_t lastTime = 0;
 
+int light = 0;
+int lightBool = 0;
+
 void vTask1(void *pvParameters) {
     //如果有初使化，放在死循环之前
 //    for (;;) //一个死循环
 //    {
     //任务代码
     uint32_t time = HAL_GetTick();
-    Str_Printf("时间: %d 距离上一次: %d\r\n", time, (time - lastTime));
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, light);
+    __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, light);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, light);
+    if (lightBool == 0) {
+        if (light < 100) {
+            light++;
+        } else {
+            lightBool = 1;
+        }
+    } else {
+        if (light > 0) {
+            light--;
+        } else {
+            lightBool = 0;
+        }
+    }
+    Log("亮度: %d\r\n", light);
+//    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
+//    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
     lastTime = time;
     //}
 }
@@ -82,9 +104,9 @@ void info(void) {
     osStatus_t status;
     status = osKernelGetInfo(&osv, infobuf, sizeof(infobuf));
     if (status == osOK) {
-        Str_Printf("Kernel Information: %s\r\n", infobuf);
-        Str_Printf("Kernel Version : %d\r\n", osv.kernel);
-        Str_Printf("Kernel API Version: %d\r\n", osv.api);
+        Log("Kernel Information: %s\r\n", infobuf);
+        Log("Kernel Version : %d\r\n", osv.kernel);
+        Log("Kernel API Version: %d\r\n", osv.api);
     }
 }
 
@@ -120,18 +142,27 @@ int main(void) {
     MX_GPIO_Init();
     MX_USART1_UART_Init();
     MX_USART2_UART_Init();
+    MX_TIM3_Init();
+    MX_TIM1_Init();
+    MX_TIM4_Init();
     /* USER CODE BEGIN 2 */
 
-    Str_Printf("Free Rios Init\r\n");
-    /* USER CODE END 2 */
-
-    /* Call init function for freertos objects (in freertos.c) */
+    Log("Free Rios Init\r\n");
     MX_FREERTOS_Init();
 
     info();
 
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
+
     osTimerId_t timer_id = osTimerNew(vTask1, osTimerPeriodic, (void *) 0, NULL);
-    osTimerStart(timer_id, 1000);
+    osTimerStart(timer_id, 1);
+
+    /* USER CODE END 2 */
+
+    /* Call init function for freertos objects (in freertos.c) */
+    //MX_FREERTOS_Init();
 
     /* Start scheduler */
     osKernelStart();
