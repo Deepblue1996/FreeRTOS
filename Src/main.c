@@ -71,9 +71,21 @@ void vTask1(void *pvParameters) {
 //    {
     //任务代码
     uint32_t time = HAL_GetTick();
-    Str_Printf("时间: %d 距离上一次: %d\n", time, (time - lastTime));
+    Str_Printf("时间: %d 距离上一次: %d\r\n", time, (time - lastTime));
     lastTime = time;
     //}
+}
+
+void info(void) {
+    char infobuf[100];
+    osVersion_t osv;
+    osStatus_t status;
+    status = osKernelGetInfo(&osv, infobuf, sizeof(infobuf));
+    if (status == osOK) {
+        Str_Printf("Kernel Information: %s\r\n", infobuf);
+        Str_Printf("Kernel Version : %d\r\n", osv.kernel);
+        Str_Printf("Kernel API Version: %d\r\n", osv.api);
+    }
 }
 
 /* USER CODE END 0 */
@@ -110,14 +122,16 @@ int main(void) {
     MX_USART2_UART_Init();
     /* USER CODE BEGIN 2 */
 
-    Str_Printf("Free Rios Init\n");
+    Str_Printf("Free Rios Init\r\n");
     /* USER CODE END 2 */
 
     /* Call init function for freertos objects (in freertos.c) */
     MX_FREERTOS_Init();
 
+    info();
+
     osTimerId_t timer_id = osTimerNew(vTask1, osTimerPeriodic, (void *) 0, NULL);
-    osTimerStart(timer_id, 20);
+    osTimerStart(timer_id, 1000);
 
     /* Start scheduler */
     osKernelStart();
